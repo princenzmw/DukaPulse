@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Tiger Data / Timescale Cloud compatible PostgreSQL with pgvector
+  tiger-data:
+    image: timescale/timescaledb-ha:pg16
+    container_name: dukapulse-tiger-data
+    environment:
+      POSTGRES_DB: dukapulse
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - tiger_storage:/home/postgres/pgdata/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d dukapulse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI REST API Backend
+  api:
+    build: .
+    container_name: dukapulse-api
+    command: uvicorn dukapulse.api.main:app --host 0.0.0.0 --port 8000
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@tiger-data:5432/dukapulse
+      ENVIRONMENT: production
+      AUTH0_DOMAIN: dev-dukapulse.us.auth0.com
+      AUTH0_API_AUDIENCE: https://api.dukapulse.africa
+    ports:
+      - "8000:8000"
+    depends_on:
+      tiger-data:
+        condition: service_healthy
+
+  # Streamlit Interactive Kiosk Dashboard
+  dashboard:
+    build: .
+    container_name: dukapulse-dashboard
+    command: streamlit run app/streamlit_app.py --server.port 8501 --server.address 0.0.0.0
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@tiger-data:5432/dukapulse
+      ENVIRONMENT: production
+    ports:
+      - "8501:8501"
+    depends_on:
+      tiger-data:
+        condition: service_healthy
+
+volumes:
+  tiger_storage:
