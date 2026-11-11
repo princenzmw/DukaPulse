@@ -12,6 +12,9 @@ authors = [
     { name = "Prince NZAMUWE", email = "princenzamuwe@gmail.com" }
 ]
 
+[tool.setuptools.packages.find]
+include = ["dukapulse*"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"
@@ -19,6 +22,9 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
 ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"app/streamlit_app.py" = ["E402"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
