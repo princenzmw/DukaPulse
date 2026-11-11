@@ -11,6 +11,14 @@ Features:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Ensure project root is in sys.path when invoked via streamlit run
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -64,7 +72,7 @@ setup_database()
 with st.sidebar:
     st.image(
         "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&auto=format&fit=crop&q=60",
-        use_container_width=True,
+        width="stretch",
     )
     st.markdown("### 🏪 Shop Location")
     shop_id = "shop_kibera_01"
@@ -193,11 +201,11 @@ with tab_pos:
 
         # Concurrency demo buttons
         btn_sell = st.button(
-            "💳 Complete Sale (Atomic Row Lock)", type="primary", use_container_width=True
+            "💳 Complete Sale (Atomic Row Lock)", type="primary", width="stretch"
         )
         btn_oversell_test = st.button(
             f"⚠️ Force Oversell Hazard (Attempt to sell {current_item['current_stock'] + 5} units)",
-            use_container_width=True,
+            width="stretch",
         )
 
         if btn_sell:
@@ -290,7 +298,7 @@ with tab_inventory:
                 "needs_reorder": "Restock Needed?",
             }
         ),
-        use_container_width=True,
+        width="stretch",
     )
 
     # Restock Section (Owner Only)
@@ -372,7 +380,7 @@ with tab_timeseries:
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
             height=380,
         )
-        st.plotly_chart(fig_revenue, use_container_width=True)
+        st.plotly_chart(fig_revenue, width="stretch")
 
     # 2. Hourly Profile & Payment Breakdown
     c_hourly, c_pay = st.columns([1.5, 1.0])
@@ -388,7 +396,7 @@ with tab_timeseries:
                 color_discrete_sequence=["#f59e0b"],
             )
             fig_hourly.update_layout(height=340)
-            st.plotly_chart(fig_hourly, use_container_width=True)
+            st.plotly_chart(fig_hourly, width="stretch")
 
     with c_pay:
         if payment_split:
@@ -402,7 +410,7 @@ with tab_timeseries:
                 color_discrete_map={"M-PESA": "#16a34a", "CASH": "#64748b"},
             )
             fig_pay.update_layout(height=340)
-            st.plotly_chart(fig_pay, use_container_width=True)
+            st.plotly_chart(fig_pay, width="stretch")
 
 # -----------------------------------------------------------------------------
 # TAB 4: Honest Demand Forecasting vs Seasonal-Naive Baseline
@@ -507,7 +515,7 @@ with tab_forecasting:
         yaxis_title="Units Demanded",
         height=380,
     )
-    st.plotly_chart(fig_fc, use_container_width=True)
+    st.plotly_chart(fig_fc, width="stretch")
 
 # -----------------------------------------------------------------------------
 # TAB 5: MLH Builders Week Challenge Proof & Architecture

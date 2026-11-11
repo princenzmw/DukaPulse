@@ -221,11 +221,7 @@ def seed_database(db: Session, num_days: int = 60, seed: int = 42) -> str:
 
         if not prod:
             prod_id = str(uuid.uuid4())
-            emb_field = (
-                emb_list
-                if HAS_PGVECTOR and db.bind.dialect.name != "sqlite"
-                else json.dumps(emb_list)
-            )
+            emb_field = emb_list if HAS_PGVECTOR else json.dumps(emb_list)
             prod = Product(
                 id=prod_id,
                 shop_id=shop_id,

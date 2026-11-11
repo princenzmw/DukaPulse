@@ -185,8 +185,8 @@ class SemanticSearchService:
                         compute_dense_embedding(prod.name + " " + (prod.description or "")),
                         dtype=np.float32,
                     )
-            elif isinstance(emb_raw, (list, np.ndarray)):
-                p_vec = np.array(emb_raw, dtype=np.float32)
+            elif emb_raw is not None and hasattr(emb_raw, "__iter__"):
+                p_vec = np.array(list(emb_raw), dtype=np.float32)
             else:
                 p_vec = np.array(
                     compute_dense_embedding(prod.name + " " + (prod.description or "")),
