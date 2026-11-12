@@ -28,12 +28,54 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from dukapulse.auth.jwt import create_dev_token
+from dukapulse.db.models import Inventory, Product, Shop
 from dukapulse.db.session import SessionLocal, init_db
 from dukapulse.seed import seed_database
 from dukapulse.services.forecasting import DemandForecastingService
 from dukapulse.services.inventory import InsufficientStockError, InventoryService
-from dukapulse.services.semantic_search import SemanticSearchService
 from dukapulse.services.timeseries import TimeSeriesAnalyticsService
+
+
+def search_catalog_db(db, shop_id: str, query: str, top_k: int = 6) -> list[dict]:
+    """Fast database catalog search for Streamlit without loading PyTorch in memory.
+
+    Matches query terms against product name, category, and colloquial retail descriptions.
+    """
+    clean_q = query.strip().lower()
+    rows = (
+        db.query(Product, Inventory)
+        .join(Inventory, Product.id == Inventory.product_id)
+        .filter(Product.shop_id == shop_id)
+        .all()
+    )
+    results = []
+    tokens = clean_q.split()
+    for prod, inv in rows:
+        corpus = f"{prod.name} {prod.category} {prod.description or ''}".lower()
+        if not clean_q:
+            score = 1.0
+        elif clean_q in corpus:
+            score = 0.96
+        else:
+            matches = sum(1 for t in tokens if t in corpus)
+            score = round(matches / max(len(tokens), 1) * 0.82, 2) if matches else 0.0
+
+        if score > 0.0 or not clean_q:
+            results.append(
+                {
+                    "id": prod.id,
+                    "name": prod.name,
+                    "category": prod.category,
+                    "unit_cost": float(prod.unit_cost),
+                    "unit_price": float(prod.unit_price),
+                    "barcode": prod.barcode,
+                    "current_stock": inv.current_stock,
+                    "reorder_point": inv.reorder_point,
+                    "similarity": score,
+                }
+            )
+    results.sort(key=lambda x: x["similarity"], reverse=True)
+    return results[:top_k]
 
 # Page Setup
 st.set_page_config(
@@ -63,7 +105,8 @@ st.markdown(
 def setup_database():
     init_db()
     with SessionLocal() as db:
-        seed_database(db)
+        if db.query(Shop).count() == 0:
+            seed_database(db)
     return True
 
 
@@ -161,8 +204,7 @@ with tab_pos:
         )
 
         with SessionLocal() as db:
-            search_service = SemanticSearchService(db)
-            matches = search_service.search_products(shop_id=shop_id, query=search_query, top_k=6)
+            matches = search_catalog_db(db, shop_id=shop_id, query=search_query, top_k=6)
 
         st.markdown(f"**Top Semantic Matches for '{search_query}':**")
         for m in matches:

@@ -120,11 +120,11 @@ class SemanticSearchService:
                     SELECT 
                         p.id, p.name, p.category, p.unit_cost, p.unit_price, p.barcode,
                         i.current_stock, i.reorder_point,
-                        (1 - (p.embedding <=> :query_vec::vector)) AS similarity
+                        (1 - (p.embedding <=> CAST(:query_vec AS vector))) AS similarity
                     FROM products p
                     JOIN inventory i ON p.id = i.product_id
                     WHERE p.shop_id = :shop_id {cat_filter}
-                    ORDER BY p.embedding <=> :query_vec::vector ASC
+                    ORDER BY p.embedding <=> CAST(:query_vec AS vector) ASC
                     LIMIT :limit;
                 """)
                 params = {
@@ -137,7 +137,7 @@ class SemanticSearchService:
                 rows = self.db.execute(sql, params).mappings().all()
                 return [dict(r) for r in rows]
             except Exception:
-                pass  # Fall through to in-memory cosine fallback
+                self.db.rollback()  # Reset transaction state before fallback
 
         # 2. In-memory cosine fallback for SQLite / test environments
         products = (

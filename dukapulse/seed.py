@@ -15,7 +15,6 @@ from sqlalchemy.orm import Session
 
 from .db.models import HAS_PGVECTOR, Inventory, Product, SalesEvent, Shop
 from .db.session import SessionLocal, init_db
-from .services.semantic_search import compute_dense_embedding
 
 PRODUCTS_CATALOG = [
     {
@@ -208,6 +207,8 @@ def seed_database(db: Session, num_days: int = 60, seed: int = 42) -> str:
         db.commit()
 
     # 2. Add products and inventory
+    from .services.semantic_search import compute_dense_embedding
+
     product_records = []
     for item in PRODUCTS_CATALOG:
         prod = (
