@@ -81,6 +81,11 @@ def og_image():
     return FileResponse(STATIC_DIR / "og-image.png")
 
 
+@app.get("/og-image-previous.png", include_in_schema=False)
+def og_image_previous():
+    return FileResponse(STATIC_DIR / "og-image-previous.png")
+
+
 @app.get("/health", tags=["Health"])
 def healthcheck():
     """Health check endpoint probing database connectivity.

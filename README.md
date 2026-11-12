@@ -183,6 +183,7 @@ docker compose up --build
 
 ---
 
-## License
+## License & Imagery
 
-This project is licensed under the [MIT License](LICENSE).
+- **Code:** Licensed under the [MIT License](LICENSE).
+- **Photography:** Storefront photography by [Punkkatz](https://commons.wikimedia.org/wiki/File:Kiosk_in_Nairobi,_Chaka_Rd.jpg) licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) via Wikimedia Commons (Chaka Rd Kiosk, Nairobi, Kenya).
