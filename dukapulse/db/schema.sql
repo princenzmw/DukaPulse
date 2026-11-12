@@ -1,6 +1,6 @@
 -- ==============================================================================
 -- DUKAPULSE: TIGER DATA (TIMESCALE) & PGVECTOR SCHEMA SETUP
--- MLH Global Hack Week: Builders Week Challenge
+-- Micro-Retail Inventory Intelligence & Concurrency Guard
 -- ==============================================================================
 
 -- 1. Enable Tiger Data / Timescale & pgvector Extensions

@@ -67,10 +67,10 @@ class Settings(BaseSettings):
     AUTH0_ALGORITHMS: list[str] = Field(default=["RS256", "HS256"])
     DEV_MODE_MOCK_AUTH: bool = Field(
         default=False,
-        description="Permit developer bearer tokens for local grading without live Auth0 tenant",
+        description="Permit developer bearer tokens for local development without live Auth0 tenant",
     )
     DEV_JWT_SECRET: str = Field(
-        default="dukapulse-mlh-builders-week-secret-key-2026",
+        default="dukapulse-dev-secret-key-2026",
         description="Secret key for signing offline dev tokens",
     )
 

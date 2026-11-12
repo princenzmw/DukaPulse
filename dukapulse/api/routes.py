@@ -68,9 +68,9 @@ class OversellRaceRequest(BaseModel):
 # -----------------------------------------------------------------------------
 # Auth & Dev Token Endpoints
 # -----------------------------------------------------------------------------
-@router.post("/auth/token", summary="Generate Dev / Evaluator Bearer Token")
+@router.post("/auth/token", summary="Generate Dev Mock Bearer Token")
 def generate_token(req: TokenRequest):
-    """Generate an Auth0-compatible test token for offline hackathon grading."""
+    """Generate an Auth0-compatible test token for local development and test automation."""
     env_flag = os.getenv("DEV_MODE_MOCK_AUTH")
     is_mock_enabled = (
         env_flag.lower() in ("true", "1", "yes")
