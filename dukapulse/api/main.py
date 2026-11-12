@@ -8,7 +8,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from ..config import settings
@@ -59,6 +59,26 @@ app.mount("/kiosk", StaticFiles(directory=str(STATIC_DIR), html=True), name="kio
 @app.get("/", include_in_schema=False)
 def root_redirect():
     return RedirectResponse(url="/kiosk")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon_ico():
+    return FileResponse(STATIC_DIR / "favicon.ico")
+
+
+@app.get("/favicon.svg", include_in_schema=False)
+def favicon_svg():
+    return FileResponse(STATIC_DIR / "favicon.svg", media_type="image/svg+xml")
+
+
+@app.get("/apple-touch-icon.png", include_in_schema=False)
+def apple_touch_icon():
+    return FileResponse(STATIC_DIR / "apple-touch-icon.png")
+
+
+@app.get("/og-image.png", include_in_schema=False)
+def og_image():
+    return FileResponse(STATIC_DIR / "og-image.png")
 
 
 @app.get("/health", tags=["Health"])

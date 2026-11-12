@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none">
+  <rect width="32" height="32" rx="6" fill="#0f172a"/>
+  <!-- Duka Gable Roof & Structure -->
+  <path d="M 5 13 L 16 4 L 27 13" stroke="#f8fafc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 8 13 V 25 H 24 V 13" stroke="#f8fafc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 6 15 H 26" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Telemetry Pulse Wave -->
+  <path d="M 3 20 H 9 L 12.5 13 L 16 26 L 19.5 16 L 22.5 20 H 29" stroke="#10b981" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

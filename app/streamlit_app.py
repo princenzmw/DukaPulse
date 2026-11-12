@@ -78,7 +78,8 @@ def search_catalog_db(db, shop_id: str, query: str, top_k: int = 6) -> list[dict
 
 # Page Setup
 st.set_page_config(
-    page_title="DukaPulse | Kiosk Inventory Intelligence",
+    page_title="DukaPulse — Analytics",
+    page_icon="https://dukapulse-kiosk.onrender.com/kiosk/apple-touch-icon.png",
     layout="wide",
     initial_sidebar_state="expanded",
 )
