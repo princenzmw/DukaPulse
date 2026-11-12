@@ -42,3 +42,8 @@ htmlcov/
 
 # Streamlit
 .streamlit/
+
+# Local Verification & Asset Sources
+.venv-verify/
+assets-src/
+

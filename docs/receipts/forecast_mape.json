@@ -1,0 +1,100 @@
+[
+  {
+    "product": "Jogoo Maize Meal 2kg",
+    "mape_seasonal_naive": 2.221,
+    "mape_holt": 10.18,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "Pembe Maize Flour 2kg",
+    "mape_seasonal_naive": 2.345,
+    "mape_holt": 9.305,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "Rina Salad Cooking Oil 1L",
+    "mape_seasonal_naive": 3.095,
+    "mape_holt": 7.846,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "Fresh Fri Cooking Oil 2L",
+    "mape_seasonal_naive": 3.748,
+    "mape_holt": 6.046,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "KCC Fresh Homogenized Milk 500ml",
+    "mape_seasonal_naive": 2.003,
+    "mape_holt": 8.298,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "Brookside Long Life Milk 500ml",
+    "mape_seasonal_naive": 2.281,
+    "mape_holt": 11.575,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "Broadways White Bread 400g",
+    "mape_seasonal_naive": 1.012,
+    "mape_holt": 6.276,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "Omo Hand Washing Powder 500g",
+    "mape_seasonal_naive": 2.493,
+    "mape_holt": 12.777,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "Geisha Bath Soap 225g Aloe Vera",
+    "mape_seasonal_naive": 1.873,
+    "mape_holt": 9.144,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "Royco Mchuzi Mix Beef 200g",
+    "mape_seasonal_naive": 1.312,
+    "mape_holt": 6.535,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "Ketepa Pride Tea Bags 50s",
+    "mape_seasonal_naive": 5.433,
+    "mape_holt": 16.58,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "Safaricom Airtime KES 50",
+    "mape_seasonal_naive": 1.585,
+    "mape_holt": 7.908,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "Safaricom Airtime KES 100",
+    "mape_seasonal_naive": 1.707,
+    "mape_holt": 8.568,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  },
+  {
+    "product": "Daawat Traditional Basmati Rice 1kg",
+    "mape_seasonal_naive": 1.374,
+    "mape_holt": 2.533,
+    "winner": "Seasonal-Naive Benchmark (Baseline)",
+    "generated_at": "2026-11-12T01:11:20.355658+00:00"
+  }
+]

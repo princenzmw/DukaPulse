@@ -158,9 +158,9 @@ def test_analytics_time_bucket_rollup(SessionLocal):
 
 
 def test_oversell_concurrency_on_real_pg(SessionLocal):
-    """OVERSELL ON REAL PG: 8 threads × 10 attempts racing one unit through the
+    """OVERSELL ON REAL PG: 16 threads racing 10,000 attempts for 1 unit through the
 
-    inventory service; assert exactly 1 success, 79 InsufficientStockError, stock never negative.
+    inventory service; assert exactly 1 success, 9,999 InsufficientStockError, stock never negative.
     """
     shop_id = "shop_kibera_01"
     with SessionLocal() as init_sess:
@@ -172,6 +172,8 @@ def test_oversell_concurrency_on_real_pg(SessionLocal):
         inv.current_stock = 1
         init_sess.commit()
 
+    total_attempts = 10000
+    max_workers = 16
     success_count = 0
     insufficient_stock_count = 0
     other_errors = []
@@ -192,9 +194,8 @@ def test_oversell_concurrency_on_real_pg(SessionLocal):
             except Exception as exc:
                 return f"error: {exc}"
 
-    # 8 threads × 10 attempts = 80 total concurrent racing operations
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
-        futures = [executor.submit(attempt_purchase, i) for i in range(80)]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(attempt_purchase, i) for i in range(total_attempts)]
         for fut in concurrent.futures.as_completed(futures):
             res = fut.result()
             if res == "success":
@@ -204,11 +205,17 @@ def test_oversell_concurrency_on_real_pg(SessionLocal):
             else:
                 other_errors.append(res)
 
-    # Assert exactly 1 success and 79 InsufficientStockError
+    print(
+        f"\n[OVERSELL RECEIPT] Total Attempts: {total_attempts}, "
+        f"Success: {success_count}, InsufficientStock: {insufficient_stock_count}, "
+        f"Other: {len(other_errors)}"
+    )
+
+    # Assert exactly 1 success and 9,999 InsufficientStockError
     assert success_count == 1, f"Expected exactly 1 success, got {success_count}"
-    assert insufficient_stock_count == 79, (
-        f"Expected exactly 79 InsufficientStockError, got {insufficient_stock_count}. "
-        f"Other errors: {other_errors}"
+    assert insufficient_stock_count == total_attempts - 1, (
+        f"Expected exactly {total_attempts - 1} InsufficientStockError, "
+        f"got {insufficient_stock_count}. Other errors: {other_errors}"
     )
     assert len(other_errors) == 0, f"Unexpected errors during concurrency race: {other_errors}"
 
