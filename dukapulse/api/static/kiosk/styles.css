@@ -658,7 +658,7 @@ th.table-num {
   display: block;
 }
 
-/* Footer */
+/* Footer & Brand Badges */
 .footer {
   border-top: 1px solid var(--hairline);
   padding-top: 16px;
@@ -668,7 +668,47 @@ th.table-num {
   font-size: 12px;
   color: var(--muted);
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 16px;
+}
+
+.footer-brands {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.brand-svg {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.brand-label {
+  letter-spacing: -0.01em;
+}
+
+.brand-pgvector {
+  font-family: var(--font-mono, monospace);
+  font-weight: 600;
+  font-size: 11px;
+  padding: 2px 5px;
+  background-color: var(--hairline);
+  border-radius: 2px;
+  color: var(--ink);
 }
 
 .footer a {

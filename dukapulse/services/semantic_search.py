@@ -1,119 +1,81 @@
-"""Semantic product search using pgvector embeddings and Kenyan retail taxonomy."""
+"""Semantic product search using sentence-transformers and pgvector embeddings."""
 
 from __future__ import annotations
 
-import hashlib
+import functools
 import json
+import os
 
 import numpy as np
+from sentence_transformers import SentenceTransformer
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ..db.models import HAS_PGVECTOR, Inventory, Product
 
-# Domain taxonomy vectors: guarantees semantic closeness for colloquial Sheng / Swahili queries
-DOMAIN_KEYWORDS: dict[str, list[str]] = {
-    "flour_unga": [
-        "unga",
-        "flour",
-        "maize",
-        "corn",
-        "ugali",
-        "jogoo",
-        "pembe",
-        "ndovu",
-        "baking",
-        "wheat",
-    ],
-    "cooking_oil": [
-        "oil",
-        "fat",
-        "mafuta",
-        "salad",
-        "rina",
-        "fresh fri",
-        "elianto",
-        "frying",
-        "cooking oil",
-    ],
-    "dairy_milk": [
-        "milk",
-        "maziwa",
-        "dairy",
-        "kcc",
-        "brookside",
-        "fresh",
-        "lala",
-        "cheese",
-        "butter",
-    ],
-    "soap_detergent": [
-        "soap",
-        "sabuni",
-        "detergent",
-        "powder",
-        "omo",
-        "ariel",
-        "geisha",
-        "sunlight",
-        "washing",
-        "bath",
-    ],
-    "beverage_dry": [
-        "tea",
-        "chai",
-        "ketepa",
-        "sugar",
-        "sukari",
-        "salt",
-        "chumvi",
-        "royco",
-        "rice",
-        "mchuzi",
-        "spices",
-    ],
-    "telecom_airtime": [
-        "airtime",
-        "credit",
-        "safaricom",
-        "airtel",
-        "bonga",
-        "scratch",
-        "recharge",
-        "sim",
-    ],
+# Pinned model and revision for deterministic, reproducible embeddings
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+
+# Domain synonym dictionary: maps colloquial Kenyan retail terms (Swahili / Sheng)
+# into English conceptual tokens so all-MiniLM-L6-v2 accurately bridges vernacular
+# consumer searches to formal product catalog entries.
+KENYAN_RETAIL_SYNONYMS: dict[str, str] = {
+    "unga": "maize flour meal ugali",
+    "ugali": "maize meal ugali staple",
+    "sabuni": "soap",
+    "kuoga": "bathing bath soap body wash bar",
+    "kuosha": "laundry washing powder clothes detergent fabric",
+    "mafuta": "cooking oil frying fat vegetable",
+    "kupika": "cooking oil frying culinary kitchen",
+    "maziwa": "fresh dairy cow milk",
+    "sukari": "sugar sweetener",
+    "chumvi": "salt seasoning",
+    "chai": "black tea leaves",
 }
+
+
+@functools.lru_cache(maxsize=1)
+def get_embedding_model() -> SentenceTransformer:
+    """Singleton cached loader for the pinned sentence-transformers model.
+
+    Reuses the in-memory neural weights across API queries and DB seed runs,
+    preventing repeated disk I/O and transformer re-initialization.
+    """
+    # Prevent warning telemetry during model loading
+    os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
+    os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+    return SentenceTransformer(MODEL_NAME, revision=MODEL_REVISION)
+
+
+def enrich_kenyan_retail_text(text_input: str) -> str:
+    """Enrich colloquial Swahili or Sheng retail phrases with conceptual synonyms.
+
+    Ensures cross-lingual queries align tightly with English catalog descriptions.
+    """
+    clean_words = text_input.lower().split()
+    expansions: list[str] = []
+    for word in clean_words:
+        if word in KENYAN_RETAIL_SYNONYMS:
+            expansions.append(KENYAN_RETAIL_SYNONYMS[word])
+    if expansions:
+        return f"{text_input} ({' '.join(expansions)})"
+    return text_input
 
 
 def compute_dense_embedding(text_input: str, dim: int = 384) -> list[float]:
     """Generate a normalized 384-dimensional dense semantic embedding.
 
-    Uses domain semantic hashing so synonyms (e.g. 'unga' and 'maize meal', 'sabuni' and 'soap')
-    align tightly in vector space without requiring an external 500MB transformer download.
+    Uses sentence-transformers all-MiniLM-L6-v2 with domain synonym enrichment
+    and L2 unit normalization.
     """
-    clean_text = text_input.lower().strip()
-    words = clean_text.split()
-    vec = np.zeros(dim, dtype=np.float32)
+    clean_text = text_input.strip()
+    if not clean_text:
+        return [0.0] * dim
 
-    # 1. Base deterministic text feature hash
-    for word in words:
-        h = int(hashlib.sha256(word.encode("utf-8")).hexdigest(), 16)
-        idx = h % dim
-        sign = 1.0 if ((h >> 8) & 1) else -1.0
-        vec[idx] += sign
-
-    # 2. Domain semantic clustering: amplify shared subspace dimensions
-    for cluster_idx, (cluster_name, keywords) in enumerate(DOMAIN_KEYWORDS.items()):
-        start_dim = cluster_idx * 30
-        end_dim = start_dim + 30
-        for kw in keywords:
-            if kw in clean_text:
-                vec[start_dim:end_dim] += 2.5
-
-    # 3. $L_2$ Normalization to unit length
-    norm = np.linalg.norm(vec)
-    if norm > 0:
-        vec = vec / norm
+    enriched = enrich_kenyan_retail_text(clean_text)
+    model = get_embedding_model()
+    vec = model.encode(enriched, normalize_embeddings=True)
     return vec.tolist()
 
 
