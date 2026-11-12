@@ -63,6 +63,13 @@ def root_redirect():
 
 @app.get("/health", tags=["Health"])
 def healthcheck():
+    """Health check endpoint probing database connectivity.
+
+    WHY MINIMAL PAYLOAD:
+    Public health endpoints should reveal minimal architectural internals to prevent
+    information leakage. Exposes strictly operational status, active DB probe,
+    service identity, and semantic version.
+    """
     from sqlalchemy import text
 
     from ..db.session import engine
@@ -79,7 +86,5 @@ def healthcheck():
         "status": "ok",
         "database": db_status,
         "service": settings.APP_NAME,
-        "environment": settings.ENVIRONMENT,
-        "auth0_domain": settings.AUTH0_DOMAIN,
-        "mock_auth_allowed": settings.DEV_MODE_MOCK_AUTH,
+        "version": app.version,
     }

@@ -70,7 +70,7 @@ class Settings(BaseSettings):
         description="Permit developer bearer tokens for local development without live Auth0 tenant",
     )
     DEV_JWT_SECRET: str = Field(
-        default="dukapulse-dev-secret-key-2026",
+        default="dukapulse-dev-secret-key-32bytes-2026",
         description="Secret key for signing offline dev tokens",
     )
 

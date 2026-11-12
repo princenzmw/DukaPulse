@@ -100,9 +100,12 @@ def test_kiosk_html_endpoint(client):
 
 
 def test_healthcheck_endpoint(client):
-    """GET /health returns status ok and database connection state."""
+    """GET /health returns minimal public status payload."""
     res = client.get("/health")
     assert res.status_code == 200
     data = res.json()
     assert data["status"] == "ok"
     assert data["database"] == "connected"
+    assert data["service"] == "DukaPulse"
+    assert "version" in data
+    assert set(data.keys()) == {"status", "database", "service", "version"}

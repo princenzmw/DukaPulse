@@ -69,7 +69,7 @@ Consumers and shopkeepers in Kenyan neighborhoods rarely search product catalogs
 | **10,000-Attempt Oversell Race** | 16 concurrent threads race 10,000 purchases for 1 unit on real PostgreSQL: exactly 1 success, 9,999 blocked, stock remains 0 (never negative). | [`tests/test_integration_engine.py#L160-L226`](tests/test_integration_engine.py#L160-L226) |
 | **Timescale Hypertable Engine** | `sales_events` partitioned along 7-day intervals; continuous aggregates `hourly_sales_summary` and `daily_duka_analytics` refresh automatically. | [`tests/test_integration_engine.py#L76-L132`](tests/test_integration_engine.py#L76-L132) |
 | **Measured Vector Retrieval** | `all-MiniLM-L6-v2` served via ONNX Runtime (FastEmbed) with verified cosine similarity on live cloud pgvector database. | [`dukapulse/services/semantic_search.py#L103-L150`](dukapulse/services/semantic_search.py#L103-L150) |
-| **Idempotent Seed Pipeline** | Seeds 60 days of transactional history (6,314 sales events across 14 products) safely without duplicate key violations. | [`dukapulse/seed.py#L100-L250`](dukapulse/seed.py#L100-L250) |
+| **Idempotent Seed Pipeline** | Seeds 60 days of transactional history (~6,300 sales events across 14 products) safely without duplicate key violations. | [`dukapulse/seed.py#L100-L250`](dukapulse/seed.py#L100-L250) |
 | **RBAC Security & Redaction** | Staff role redacts wholesale unit costs and profit margins; unauthorized restocking mutations return HTTP 403 Forbidden. | [`dukapulse/auth/rbac.py#L25-L65`](dukapulse/auth/rbac.py#L25-L65), [`tests/test_rbac.py#L1-L85`](tests/test_rbac.py#L1-L85) |
 | **Public Live Deployments** | Live Kiosk POS deployed on Render and interactive dashboard deployed on Streamlit Community Cloud backed by Timescale Cloud. | [Render Kiosk](https://dukapulse-kiosk.onrender.com/kiosk), [Streamlit App](https://dukapulse.streamlit.app) |
 
@@ -104,7 +104,6 @@ flowchart TD
     FastAPI --> PgVector
     Streamlit --> Caggs
     Streamlit --> InventoryTable
-    Streamlit --> PgVector
 ```
 
 ---
@@ -177,7 +176,7 @@ docker compose up --build
 ## Technology Stack
 
 - **Backend:** Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.0, ONNX Runtime (FastEmbed)
-- **Database & Storage:** PostgreSQL 16, TimescaleDB Hypertables & Continuous Aggregates, pgvector
+- **Database & Storage:** PostgreSQL (16 dev / 18 cloud), TimescaleDB Hypertables & Continuous Aggregates, pgvector
 - **Frontend:** Vanilla HTML5/CSS3/JavaScript (Kiosk POS), Streamlit (Analytics Dashboard), Plotly
 - **Security & Identity:** Auth0 (RS256 JWT, JWKS, Role-Based Access Control)
 - **Infrastructure & CI:** Docker, Render, GitHub Actions
