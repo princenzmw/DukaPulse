@@ -31,3 +31,6 @@ pythonpath = ["."]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 asyncio_mode = "auto"
+markers = [
+    "integration: marks tests as real-engine database integration tests (deselect with '-m \"not integration\"')",
+]
