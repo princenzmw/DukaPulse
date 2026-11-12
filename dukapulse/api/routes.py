@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -10,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from ..auth.jwt import create_dev_token
 from ..auth.rbac import RequireOwner, RequireStaff
+from ..config import settings
 from ..db.session import get_db
 from ..services.forecasting import DemandForecastingService
 from ..services.inventory import InsufficientStockError, InventoryService
@@ -47,6 +49,21 @@ class TokenRequest(BaseModel):
 @router.post("/auth/token", summary="Generate Dev / Evaluator Bearer Token")
 def generate_token(req: TokenRequest):
     """Generate an Auth0-compatible test token for offline hackathon grading."""
+    env_flag = os.getenv("DEV_MODE_MOCK_AUTH")
+    is_mock_enabled = (
+        env_flag.lower() in ("true", "1", "yes")
+        if env_flag is not None
+        else settings.DEV_MODE_MOCK_AUTH
+    )
+    if not settings.DEV_MODE_MOCK_AUTH:
+        is_mock_enabled = False
+
+    if not is_mock_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: DEV_MODE_MOCK_AUTH is disabled",
+        )
+
     token = create_dev_token(sub=req.sub, role=req.role, shop_id=req.shop_id)
     return {
         "access_token": token,

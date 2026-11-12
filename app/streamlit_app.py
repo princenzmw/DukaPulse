@@ -11,6 +11,7 @@ Features:
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -18,6 +19,8 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
+
+os.environ.setdefault("DEV_MODE_MOCK_AUTH", "true")
 
 import pandas as pd
 import plotly.express as px
@@ -70,6 +73,7 @@ setup_database()
 # Sidebar: Auth0 RBAC & Shop Context
 # -----------------------------------------------------------------------------
 with st.sidebar:
+    st.warning("⚠️ DEV AUTH MODE — local demo only")
     st.image(
         "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&auto=format&fit=crop&q=60",
         width="stretch",

@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import os
+
+# Set DEV_MODE_MOCK_AUTH=true for unit tests to exercise dev-token path
+os.environ["DEV_MODE_MOCK_AUTH"] = "true"
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine

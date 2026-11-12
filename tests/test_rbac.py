@@ -66,3 +66,20 @@ def test_staff_margin_redaction(client, staff_token, owner_token):
     first_owner_item = owner_data["inventory"][0]
     assert first_owner_item["margin_kes"] is not None
     assert first_owner_item["unit_cost"] is not None
+
+
+def test_dev_token_returns_403_when_flag_false(client, monkeypatch):
+    """POST /api/auth/token returns 403 Forbidden when DEV_MODE_MOCK_AUTH is False."""
+    from dukapulse.config import settings
+
+    monkeypatch.setattr(settings, "DEV_MODE_MOCK_AUTH", False)
+    monkeypatch.setenv("DEV_MODE_MOCK_AUTH", "false")
+
+    payload = {
+        "sub": "prince_staff_01",
+        "role": "staff",
+        "shop_id": "shop_kibera_01",
+    }
+    res = client.post("/api/auth/token", json=payload)
+    assert res.status_code == 403
+    assert "Forbidden" in res.json()["detail"] or "disabled" in res.json()["detail"]
