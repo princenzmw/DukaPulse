@@ -3,9 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DUKAPULSE Kiosk</title>
+  <title>DUKAPULSE Kiosk POS & Inventory Ledger</title>
+  <link rel="stylesheet" href="/kiosk/styles.css">
 </head>
 <body>
-  <h1>DUKAPULSE Kiosk</h1>
+  <div class="container">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="brand-group">
+        <span class="brand-title">DUKAPULSE</span>
+        <span class="brand-sub">Kiosk POS & Ledger</span>
+      </div>
+      <div class="auth-controls">
+        <span class="dev-pill">DEV AUTH MODE</span>
+        <div class="role-switcher" role="radiogroup" aria-label="Auth0 Role Switcher">
+          <button id="role-owner-btn" class="role-btn active" role="radio" aria-checked="true">OWNER</button>
+          <button id="role-staff-btn" class="role-btn" role="radio" aria-checked="false">STAFF</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Inline Auth Alert -->
+    <div id="auth-alert" class="banner-alert" role="alert"></div>
+
+    <!-- Search Band -->
+    <section class="search-band" aria-label="Semantic Product Search">
+      <div class="search-input-wrap">
+        <input 
+          id="search-input" 
+          type="search" 
+          class="search-input" 
+          placeholder="Search the duka: 'unga ya ugali', 'mafuta ya kupikia', 'sabuni'…"
+          autocomplete="off"
+        >
+      </div>
+      <div id="search-results" class="search-results" aria-live="polite"></div>
+    </section>
+
+    <!-- Main POS Layout: Catalog + Cart -->
+    <main class="pos-layout">
+      <!-- Catalog Grid -->
+      <section aria-label="Product Catalog">
+        <div class="section-head">
+          <h2 class="section-title">Kiosk Shelf Catalog</h2>
+          <span class="num" style="font-size: 11px; color: var(--muted);">Olympic Stage · Kibera</span>
+        </div>
+        <div id="product-grid" class="product-grid"></div>
+      </section>
+
+      <!-- Sticky Cart -->
+      <aside class="cart-panel" aria-label="Kiosk Cart">
+        <div class="section-head">
+          <h2 class="section-title">Current Ticket</h2>
+          <span class="num" style="font-size: 11px; color: var(--muted);">KES</span>
+        </div>
+        <div id="cart-items" class="cart-items">
+          <div class="cart-empty">Cart is empty. Select items from the catalog.</div>
+        </div>
+        <div class="cart-total-row">
+          <span>Total</span>
+          <span id="cart-total" class="num">KSh 0.00</span>
+        </div>
+        <button id="checkout-btn" class="btn btn-primary" disabled>Checkout — Lipa na M-PESA</button>
+        <div id="receipt-box" class="receipt-box" aria-live="polite"></div>
+      </aside>
+    </main>
+
+    <!-- Concurrency Demo Panel -->
+    <section class="race-panel" aria-label="Concurrency Race Demonstration">
+      <div class="race-head">
+        <div>
+          <h2 class="race-title">Pessimistic Concurrency Guard (ACID Proof)</h2>
+          <p style="font-size: 12px; color: var(--muted); margin-top: 2px;">
+            Simulates two simultaneous clerks attempting to checkout the final unit via SELECT ... FOR UPDATE.
+          </p>
+        </div>
+        <div class="race-controls">
+          <select id="race-product-select" class="select-product" aria-label="Select Product to Race"></select>
+          <button id="race-run-btn" class="btn">Simulate 2 Concurrent M-PESA Orders</button>
+        </div>
+      </div>
+      <div id="race-results-grid" class="race-results-grid"></div>
+      <div id="race-note" class="race-note"></div>
+    </section>
+
+    <!-- Stock Ledger -->
+    <section class="ledger-section" aria-label="Inventory Stock Ledger">
+      <div class="section-head">
+        <h2 class="section-title">Store Inventory Ledger & Restock Audit</h2>
+        <span class="num" style="font-size: 11px; color: var(--muted);">Owner Unlocks Wholesale Margins</span>
+      </div>
+      <table class="ledger-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th class="table-num">Stock</th>
+            <th class="table-num">Price</th>
+            <th class="table-num">Margin</th>
+            <th style="text-align:right;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="ledger-body"></tbody>
+      </table>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div>FastAPI · TimescaleDB · pgvector · Auth0</div>
+      <div>
+        <a href="/docs" target="_blank" rel="noopener">Interactive API Documentation (/docs)</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-notice" role="status" aria-live="polite"></div>
+
+  <script src="/kiosk/app.js"></script>
 </body>
 </html>

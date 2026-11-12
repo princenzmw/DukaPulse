@@ -27,6 +27,7 @@ services:
       ENVIRONMENT: production
       AUTH0_DOMAIN: dev-dukapulse.us.auth0.com
       AUTH0_API_AUDIENCE: https://api.dukapulse.africa
+      DEV_MODE_MOCK_AUTH: "true"  # dev/demo only — production deployments must override
     ports:
       - "8000:8000"
     depends_on:
