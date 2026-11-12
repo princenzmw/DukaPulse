@@ -540,9 +540,6 @@ with tab_receipts:
       - `duka_staff`: Strictly limited to cash register POS and live stock checks.
     - **Offline Grading Support:** Includes local dev token signer (`HS256`) so evaluators can run tests and explore UI without network blockers.
 
-    #### 3. Cursor & Copilot Workflow Integration
-    - Configured `.cursorrules` and `.github/copilot-instructions.md` tailored for event-driven retail pipelines and PostgreSQL concurrency locks.
-
-    #### 4. The Oversell-Proof Guarantee
+    #### 3. The Oversell-Proof Guarantee
     - Backed by row-level pessimistic locking (`SELECT ... FOR UPDATE`) and database constraint `CHECK (current_stock >= 0)` to eliminate race conditions under concurrent kiosk clerks.
     """)

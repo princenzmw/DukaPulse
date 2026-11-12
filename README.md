@@ -165,8 +165,6 @@ pytest -v tests/
 | **Tiger Data Hypertables** | `sales_events` partitioned on `sale_time` (7-day chunks) with continuous aggregate views | [`dukapulse/db/schema.sql`](dukapulse/db/schema.sql), [`timeseries.py`](dukapulse/services/timeseries.py) |
 | **pgvector Embeddings** | 384-dimensional dense semantic vectors with cosine distance matching | [`dukapulse/services/semantic_search.py`](dukapulse/services/semantic_search.py) |
 | **Auth0 Identity & RBAC** | RS256 JWKS token validation, `duka_owner` vs `duka_staff` roles | [`dukapulse/auth/jwt.py`](dukapulse/auth/jwt.py), [`dukapulse/auth/rbac.py`](dukapulse/auth/rbac.py) |
-| **Cursor Workflow** | Strict rules for event streams, pessimistic locks, and type safety | [`.cursorrules`](.cursorrules) |
-| **Copilot Workflow** | Workspace context guidelines for full-stack retail pipelines | [`.github/copilot-instructions.md`](.github/copilot-instructions.md) |
 
 ---
 
