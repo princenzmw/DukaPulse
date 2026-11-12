@@ -15,6 +15,9 @@ authors = [
 [tool.setuptools.packages.find]
 include = ["dukapulse*"]
 
+[tool.setuptools.package-data]
+dukapulse = ["api/static/**/*"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"

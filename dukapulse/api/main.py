@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from ..config import settings
 from ..db.session import init_db
@@ -14,6 +17,9 @@ from .routes import router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("dukapulse")
+
+STATIC_DIR = Path(__file__).resolve().parent / "static" / "kiosk"
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
 
 @asynccontextmanager
@@ -45,6 +51,14 @@ app.add_middleware(
 )
 
 app.include_router(router)
+
+# Mount kiosk frontend static files
+app.mount("/kiosk", StaticFiles(directory=str(STATIC_DIR), html=True), name="kiosk")
+
+
+@app.get("/", include_in_schema=False)
+def root_redirect():
+    return RedirectResponse(url="/kiosk")
 
 
 @app.get("/health", tags=["Health"])
