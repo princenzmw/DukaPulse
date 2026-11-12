@@ -13,6 +13,19 @@ from .models import Base
 
 logger = logging.getLogger(__name__)
 
+def mask_db_url(url: str) -> str:
+    """Mask credentials in database URI for safe diagnostic logging."""
+    try:
+        import urllib.parse
+
+        p = urllib.parse.urlparse(url)
+        if p.password:
+            return f"{p.scheme}://{p.username}:***@{p.hostname}:{p.port}{p.path}"
+        return url
+    except Exception:
+        return "postgresql://***"
+
+
 # Determine connection URL
 is_sqlite = False
 engine_url = settings.DATABASE_URL
@@ -30,7 +43,7 @@ else:
     except Exception as exc:
         logger.warning(
             "PostgreSQL / Tiger Data is not reachable at %s (%s). Falling back to SQLite for local mode.",
-            engine_url,
+            mask_db_url(engine_url),
             exc,
         )
         is_sqlite = True

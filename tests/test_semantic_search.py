@@ -41,3 +41,27 @@ def test_semantic_synonym_retrieval(db_session):
     names_oil = [r["name"] for r in results_oil]
     assert any("Rina" in n or "Fresh Fri" in n for n in names_oil)
     assert results_oil[0]["similarity"] > 0.60
+
+
+def test_pure_dense_retrieval_out_of_map(db_session):
+    """Verify plain English terms (unmapped in synonym dictionary) rank correctly
+
+    via pure dense semantic embeddings through all-MiniLM-L6-v2.
+    """
+    service = SemanticSearchService(db_session)
+    shop_id = "shop_kibera_01"
+
+    # 1. Search 'soap' -> Matches Geisha Bath Soap in top-3
+    results_soap = service.search_products(shop_id, query="soap", top_k=3)
+    assert any("Geisha" in r["name"] for r in results_soap)
+    assert results_soap[0]["similarity"] > 0.40
+
+    # 2. Search 'rice' -> Matches Daawat Basmati Rice in top-3
+    results_rice = service.search_products(shop_id, query="rice", top_k=3)
+    assert any("Daawat" in r["name"] for r in results_rice)
+    assert results_rice[0]["similarity"] > 0.45
+
+    # 3. Search 'tea' -> Matches Ketepa Pride Tea in top-3
+    results_tea = service.search_products(shop_id, query="tea", top_k=3)
+    assert any("Ketepa" in r["name"] for r in results_tea)
+    assert results_tea[0]["similarity"] > 0.40

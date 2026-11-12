@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -26,9 +26,29 @@ class Settings(BaseSettings):
 
     # Database & Tiger Data
     DATABASE_URL: str = Field(
-        default="postgresql://postgres:postgres@localhost:5432/dukapulse",
+        default="postgresql+psycopg://postgres:postgres@localhost:5432/dukapulse",
         description="PostgreSQL / Tiger Data Timescale connection URL",
     )
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def normalize_database_url(cls, v: str | None) -> str:
+        """Normalize PostgreSQL connection schemes to postgresql+psycopg://.
+
+        WHY: Tiger Data's Timescale Cloud console yields raw 'postgres://...' or
+        'postgresql://...' URIs, and Streamlit Cloud / Hugging Face Secrets frequently
+        paste these connection strings unedited. SQLAlchemy 2.0 with modern psycopg 3
+        requires the explicit 'postgresql+psycopg://' dialect scheme to prevent
+        legacy driver fallback or dialect rejection.
+        """
+        if not v:
+            return "postgresql+psycopg://postgres:postgres@localhost:5432/dukapulse"
+        url = v.strip()
+        if url.startswith("postgres://"):
+            return "postgresql+psycopg://" + url[len("postgres://") :]
+        if url.startswith("postgresql://") and not url.startswith("postgresql+"):
+            return "postgresql+psycopg://" + url[len("postgresql://") :]
+        return url
     USE_SQLITE_FALLBACK: bool = Field(
         default=False,
         description="When True or when PostgreSQL is unreachable, use SQLite for local demo/testing",

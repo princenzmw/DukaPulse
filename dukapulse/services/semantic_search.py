@@ -5,13 +5,16 @@ from __future__ import annotations
 import functools
 import json
 import os
+from typing import TYPE_CHECKING
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ..db.models import HAS_PGVECTOR, Inventory, Product
+
+if TYPE_CHECKING:
+    from sentence_transformers import SentenceTransformer
 
 # Pinned model and revision for deterministic, reproducible embeddings
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
@@ -39,9 +42,15 @@ KENYAN_RETAIL_SYNONYMS: dict[str, str] = {
 def get_embedding_model() -> SentenceTransformer:
     """Singleton cached loader for the pinned sentence-transformers model.
 
+    Imports sentence_transformers lazily inside the loader function to ensure
+    lightweight services, web API boots, and CLI utilities do not incur PyTorch
+    import latency or memory overhead until embeddings are explicitly computed.
+
     Reuses the in-memory neural weights across API queries and DB seed runs,
     preventing repeated disk I/O and transformer re-initialization.
     """
+    from sentence_transformers import SentenceTransformer
+
     # Prevent warning telemetry during model loading
     os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
     os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
@@ -51,7 +60,15 @@ def get_embedding_model() -> SentenceTransformer:
 def enrich_kenyan_retail_text(text_input: str) -> str:
     """Enrich colloquial Swahili or Sheng retail phrases with conceptual synonyms.
 
-    Ensures cross-lingual queries align tightly with English catalog descriptions.
+    WHY HYBRID LEXICAL + DENSE RETRIEVAL:
+    Standard sentence transformers like all-MiniLM-L6-v2 are trained predominantly on
+    English web corpora. In Kenyan neighborhood retail (dukas), consumers search using
+    Swahili or Sheng loanwords ('unga ya ugali', 'sabuni ya kuoga', 'mafuta ya kupikia').
+    Subword tokenizers fragment these vernacular terms into disjoint tokens that miss
+    the intended retail semantic cluster. By expanding recognized vernacular keywords
+    with their English conceptual equivalents prior to vector encoding, we bridge
+    cross-lingual vernacular queries directly into the dense 384-dimensional semantic
+    subspace while preserving pure dense semantic matching for plain English queries.
     """
     clean_words = text_input.lower().split()
     expansions: list[str] = []
