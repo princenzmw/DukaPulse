@@ -1,0 +1,32 @@
+name: Production Warm Keep-Alive
+
+on:
+  schedule:
+    # Runs every 10 minutes to prevent Render free-tier spins down and keep Streamlit warm
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping Kiosk and Dashboard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping Render Kiosk Health
+        run: |
+          echo "Pinging https://dukapulse-kiosk.onrender.com/health..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -m 25 https://dukapulse-kiosk.onrender.com/health || echo "000")
+          echo "Render Kiosk response code: $STATUS"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Warning: Kiosk health probe returned $STATUS (may be cold-starting)"
+          fi
+
+      - name: Ping Streamlit Dashboard Health
+        run: |
+          echo "Pinging https://dukapulse.streamlit.app/_stcore/health..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -m 25 https://dukapulse.streamlit.app/_stcore/health || echo "000")
+          echo "Streamlit response code: $STATUS"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Warning: Streamlit probe returned $STATUS"
+          fi
