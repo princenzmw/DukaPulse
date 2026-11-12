@@ -220,9 +220,10 @@ def seed_database(db: Session, num_days: int = 60, seed: int = 42) -> str:
             f"{item['name']} {item['description']} {item['category']}"
         )
 
+        emb_field = emb_list if HAS_PGVECTOR else json.dumps(emb_list)
+
         if not prod:
             prod_id = str(uuid.uuid4())
-            emb_field = emb_list if HAS_PGVECTOR else json.dumps(emb_list)
             prod = Product(
                 id=prod_id,
                 shop_id=shop_id,
@@ -245,6 +246,8 @@ def seed_database(db: Session, num_days: int = 60, seed: int = 42) -> str:
                 reorder_quantity=item["reorder_qty"],
             )
             db.add(inv)
+        else:
+            prod.embedding = emb_field
         product_records.append((prod, item))
 
     db.commit()

@@ -1,13 +1,3 @@
----
-title: DukaPulse Kiosk
-emoji: 🏪
-colorFrom: green
-colorTo: blue
-sdk: docker
-app_port: 8000
-pinned: false
----
-
 # DukaPulse 🛒⚡
 
 **Micro-retail inventory intelligence, oversell-proof concurrency locks, and honest demand forecasting for African neighborhood kiosks (dukas).**

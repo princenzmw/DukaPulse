@@ -10,25 +10,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Set Hugging Face cache directory accessible to all users
+# Set cache directories accessible to non-root users
 ENV HOME=/tmp \
-    HF_HOME=/tmp/cache/huggingface
+    FASTEMBED_CACHE_PATH=/tmp/cache/fastembed \
+    HF_HUB_DISABLE_SYMLINKS_WARNING=1 \
+    TOKENIZERS_PARALLELISM=false
 
-# Install CPU torch from official PyTorch index, then install requirements
+# Install python dependencies
 COPY requirements.txt ./
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir torch --extra-index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r requirements.txt
 
-# Bake sentence-transformers model weights into image for instant cold-start
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2', revision='1110a243fdf4706b3f48f1d95db1a4f5529b4d41')"
+# Bake fastembed ONNX model into image for instant cold-starts
+RUN python -c "from fastembed import TextEmbedding; TextEmbedding(model_name='sentence-transformers/all-MiniLM-L6-v2')"
 
 # Copy source code and install editable package
 COPY . .
 RUN pip install --no-cache-dir -e .
 
-# Make cache writable by non-root users (Hugging Face Spaces default UID 1000)
-RUN mkdir -p /tmp/cache/huggingface && chmod -R 777 /tmp/cache
+# Make cache writable by non-root users
+RUN mkdir -p /tmp/cache/fastembed && chmod -R 777 /tmp/cache
 
 EXPOSE 8000 8501
 
