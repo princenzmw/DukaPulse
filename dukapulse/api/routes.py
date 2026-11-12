@@ -316,8 +316,15 @@ def demo_oversell_race(
     db.commit()
 
     # 2. Race 2 concurrent threads using sessions bound to the active DB engine
-    session_factory = sessionmaker(bind=db.get_bind())
+    bind = db.get_bind()
+    bind_engine = bind.engine if hasattr(bind, "engine") else bind
+    session_factory = sessionmaker(bind=bind_engine)
     attempts = []
+
+    # SQLite in-memory connections share C memory structures; serialize for SQLite
+    # while running full multi-threaded concurrency on PostgreSQL / Timescale.
+    is_sqlite = bind.dialect.name == "sqlite"
+    max_workers = 1 if is_sqlite else 2
 
     def attempt_checkout(worker_id: int):
         with session_factory() as worker_sess:
@@ -350,7 +357,7 @@ def demo_oversell_race(
                     "error": str(exc),
                 }
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         futs = [executor.submit(attempt_checkout, i + 1) for i in range(2)]
         for fut in concurrent.futures.as_completed(futs):
             attempts.append(fut.result())

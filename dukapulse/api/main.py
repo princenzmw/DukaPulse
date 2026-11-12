@@ -63,8 +63,21 @@ def root_redirect():
 
 @app.get("/health", tags=["Health"])
 def healthcheck():
+    from sqlalchemy import text
+
+    from ..db.session import engine
+
+    db_status = "disconnected"
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1;"))
+        db_status = "connected"
+    except Exception as exc:
+        logger.warning("Database healthcheck probe failed: %s", exc)
+
     return {
-        "status": "online",
+        "status": "ok",
+        "database": db_status,
         "service": settings.APP_NAME,
         "environment": settings.ENVIRONMENT,
         "auth0_domain": settings.AUTH0_DOMAIN,

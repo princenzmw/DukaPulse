@@ -97,3 +97,12 @@ def test_kiosk_html_endpoint(client):
         res = client.get("/kiosk/")
     assert res.status_code == 200
     assert "DUKAPULSE" in res.text
+
+
+def test_healthcheck_endpoint(client):
+    """GET /health returns status ok and database connection state."""
+    res = client.get("/health")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "ok"
+    assert data["database"] == "connected"

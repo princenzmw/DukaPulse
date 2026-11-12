@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: dukapulse-kiosk
+    runtime: docker
+    plan: free
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DEV_MODE_MOCK_AUTH
+        value: "true" # demo deployment only — synthetic, resettable data
+      - key: ENVIRONMENT
+        value: "production"
